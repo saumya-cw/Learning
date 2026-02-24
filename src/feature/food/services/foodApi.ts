@@ -3,7 +3,7 @@ import type { Product } from "./food.type";
 
 const BASE_URL =
   import.meta.env.VITE_MOOD_API_URL ??
-  "https://world.openfoodfacts.org/api/v0/product/737628064502.json";
+  "https://jsonplaceholder.typicode.com/users";
 
 export const fetchFood = async (): Promise<Product | null> => {
   try {
