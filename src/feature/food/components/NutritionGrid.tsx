@@ -1,7 +1,7 @@
 import type { Nutriments } from "../services/food.type";
 
 type Props = {
-  nutriments?: Nutriments;
+  nutriments: Nutriments;
 };
 
 export function NutritionGrid({ nutriments }: Props) {

@@ -7,13 +7,17 @@ export type Nutriments = {
 
 export type Product = {
   product_name?: string;
-  brands?: string;
   nutriments?: Nutriments;
 };
 
-export type FoodResponse = {
-  code: string;
-  status: number;
-  status_verbose: string;
-  product?: Product;
+export type WgerIngredient = {
+  name: string;
+  energy: number | null;
+  protein: string | null;
+  carbohydrates: string | null;
+  fat: string | null;
+};
+
+export type WgerResponse = {
+  results: WgerIngredient[];
 };
