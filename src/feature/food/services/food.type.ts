@@ -6,11 +6,13 @@ export type Nutriments = {
 };
 
 export type Product = {
+  id: number;
   product_name?: string;
   nutriments?: Nutriments;
 };
 
 export type WgerIngredient = {
+  id: number;
   name: string;
   energy: number | null;
   protein: string | null;

@@ -12,8 +12,10 @@ export const useFood = () => {
       try {
         const result = await fetchFood();
         setData(result);
-      } catch {
-        setError("Failed to fetch food data");
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch food data",
+        );
       } finally {
         setLoading(false);
       }

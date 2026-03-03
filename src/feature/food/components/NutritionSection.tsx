@@ -4,13 +4,13 @@ import { useFood } from "../hooks/useFood";
 
 type Props = {
   onBack: () => void;
-};                   
+};
 
 export function NutritionSection({ onBack }: Props) {
   const { data, loading, error } = useFood();
 
   return (
-    <main className="min-h-screen bg-linear-to-br from-emerald-900 via-slate-900 to-black text-white px-6 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-900 via-slate-900 to-black text-white px-6 py-12">
       <div className="w-full max-w-6xl mx-auto">
         <div className="flex justify-center mb-8">
           <Button variant="secondary" onClick={onBack}>
@@ -38,9 +38,9 @@ export function NutritionSection({ onBack }: Props) {
               Nutrition Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.map((product, index) => (
+              {data.map((product) => (
                 <div
-                  key={`${product.product_name}-${index}`}
+                  key={product.id}
                   className="bg-slate-800 p-6 rounded-xl shadow-lg hover:shadow-emerald-900/40 hover:scale-[1.01] transition-all"
                 >
                   <h3 className="text-lg font-semibold mb-4 text-emerald-400 line-clamp-2">
@@ -50,7 +50,9 @@ export function NutritionSection({ onBack }: Props) {
                   {product.nutriments ? (
                     <NutritionGrid nutriments={product.nutriments} />
                   ) : (
-                    <p className="text-slate-500 text-sm">Nutritional data unavailable.</p>
+                    <p className="text-slate-500 text-sm">
+                      Nutritional data unavailable.
+                    </p>
                   )}
                 </div>
               ))}
