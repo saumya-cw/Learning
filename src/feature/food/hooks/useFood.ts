@@ -3,7 +3,7 @@ import { fetchFood } from "../services/foodApi";
 import type { Product } from "../services/food.type";
 
 export const useFood = () => {
-  const [data, setData] = useState<Product | null>(null);
+  const [data, setData] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,7 +13,9 @@ export const useFood = () => {
         const result = await fetchFood();
         setData(result);
       } catch (err) {
-        setError("Failed to fetch food data");
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch food data",
+        );
       } finally {
         setLoading(false);
       }

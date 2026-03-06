@@ -10,22 +10,24 @@ describe("useFood hook", () => {
     vi.clearAllMocks();
   });
 
-  it("should have loading true initially", () => {
+  it("should have loading true initially and empty data", () => {
     const { result } = renderHook(() => useFood());
 
     expect(result.current.loading).toBe(true);
-    expect(result.current.data).toBe(null);
+    expect(result.current.data).toEqual([]);
     expect(result.current.error).toBe(null);
   });
 
   it("should set data on successful fetch", async () => {
-    const mockProduct = {
-      product_name: "Test Product",
-      brands: "Test Brand",
-      nutriments: { energy: 100 },
-    };
+    const mockProducts = [
+      {
+        id: 1,
+        product_name: "Test Product",
+        nutriments: { "energy-kcal_100g": 100 },
+      },
+    ];
 
-    (foodApi.fetchFood as any).mockResolvedValue(mockProduct);
+    (foodApi.fetchFood as any).mockResolvedValue(mockProducts);
 
     const { result } = renderHook(() => useFood());
 
@@ -33,7 +35,7 @@ describe("useFood hook", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.data).toEqual(mockProduct);
+    expect(result.current.data).toEqual(mockProducts);
     expect(result.current.error).toBe(null);
   });
 
@@ -46,7 +48,7 @@ describe("useFood hook", () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.error).toBe("Failed to fetch food data");
-    expect(result.current.data).toBe(null);
+    expect(result.current.error).toBe("API Error");
+    expect(result.current.data).toEqual([]);
   });
 });

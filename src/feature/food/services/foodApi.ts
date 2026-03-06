@@ -1,22 +1,67 @@
 import axios from "axios";
-import type { Product } from "./food.type";
+import type { Product, WgerIngredient, WgerResponse } from "./food.type";
 
 const BASE_URL =
-  import.meta.env.VITE_MOOD_API_URL ??
-  "https://jsonplaceholder.typicode.com/users";
+  (import.meta.env.VITE_WGER_API_URL as string | undefined) ??
+  "https://wger.de/api/v2/ingredient/";
 
-export const fetchFood = async (): Promise<Product | null> => {
+export const fetchFood = async (): Promise<Product[]> => {
   try {
-    const { data } = await axios.get(BASE_URL);
-    if (data.status !== 1 || !data.product) return null;
+    const { data } = await axios.get<WgerResponse>(BASE_URL, {
+      params: {
+        format: "json",
+        language: 2,
+        page_size: 12,
+        ordering: "name",
+      },
+    });
 
-    const { product_name, brands, nutriments } = data.product;
-    const usefulData = { product_name, brands, nutriments };
+    if (!data?.results || !Array.isArray(data.results)) {
+      throw new Error("Unexpected response structure from wger API");
+    }
 
-    console.log("data:", usefulData);
-    return usefulData;
+    const { results } = data;
+
+    if (results.length === 0) {
+      return [];
+    }
+
+    const toFinite = (value: string | null) => {
+      const num = value == null ? NaN : Number.parseFloat(value);
+      return Number.isFinite(num) ? num : undefined;
+    };
+
+    return results
+      .filter(
+        (
+          item,
+        ): item is WgerIngredient & {
+          id: number;
+          name: string;
+          energy: number;
+        } => typeof item.id === "number" && !!item.name && item.energy !== null,
+      )
+      .map(({ id, name, energy, protein, carbohydrates, fat }) => ({
+        id,
+        product_name: name,
+
+        nutriments: {
+          "energy-kcal_100g": energy,
+          proteins_100g: toFinite(protein),
+          carbohydrates_100g: toFinite(carbohydrates),
+          fat_100g: toFinite(fat),
+        },
+      }));
   } catch (error) {
-    console.error("Error fetching food data:", error);
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      throw new Error(
+        status
+          ? `wger API request failed with status ${status}`
+          : "Network error — unable to reach the wger API",
+      );
+    }
+
     throw error;
   }
 };
