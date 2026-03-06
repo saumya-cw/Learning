@@ -27,7 +27,7 @@ describe("useFood hook", () => {
       },
     ];
 
-    (foodApi.fetchFood as any).mockResolvedValue(mockProducts);
+    vi.mocked(foodApi.fetchFood).mockResolvedValue(mockProducts);
 
     const { result } = renderHook(() => useFood());
 
@@ -40,7 +40,7 @@ describe("useFood hook", () => {
   });
 
   it("should set error when fetch fails", async () => {
-    (foodApi.fetchFood as any).mockRejectedValue(new Error("API Error"));
+    vi.mocked(foodApi.fetchFood).mockRejectedValue(new Error("API Error"));
 
     const { result } = renderHook(() => useFood());
 

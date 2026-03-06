@@ -1,6 +1,8 @@
+import { useMemo, useState } from "react";
 import { Button } from "../../../shared/atom/Button";
-import { NutritionGrid } from "./NutritionGrid";
 import { useFood } from "../hooks/useFood";
+import { useFavoritesStore } from "../store/favoritesStore";
+import { FoodCard } from "./FoodCard";
 
 type Props = {
   onBack: () => void;
@@ -8,14 +10,44 @@ type Props = {
 
 export function NutritionSection({ onBack }: Props) {
   const { data, loading, error } = useFood();
+  const [activeView, setActiveView] = useState<"all" | "favorites">("all");
+  const favoriteProductIds = useFavoritesStore(
+    (state) => state.favoriteProductIds,
+  );
+
+  const favoriteProducts = useMemo(
+    () => data.filter((product) => favoriteProductIds.includes(product.id)),
+    [data, favoriteProductIds],
+  );
+
+  const productsToRender = activeView === "favorites" ? favoriteProducts : data;
+  const emptyMessage =
+    activeView === "favorites"
+      ? "No favorite products yet."
+      : "No products found.";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-emerald-900 via-slate-900 to-black text-white px-6 py-12">
+    <main className="min-h-screen bg-linear-to-br from-emerald-900 via-slate-900 to-black text-white px-6 py-12">
       <div className="w-full max-w-6xl mx-auto">
-        <div className="flex justify-center mb-8">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Button variant="secondary" onClick={onBack}>
             Return to Home
           </Button>
+
+          <div className="flex items-center gap-3">
+            <Button
+              variant={activeView === "all" ? "primary" : "secondary"}
+              onClick={() => setActiveView("all")}
+            >
+              All Products
+            </Button>
+            <Button
+              variant={activeView === "favorites" ? "primary" : "secondary"}
+              onClick={() => setActiveView("favorites")}
+            >
+              Favorites
+            </Button>
+          </div>
         </div>
 
         {loading && (
@@ -35,28 +67,20 @@ export function NutritionSection({ onBack }: Props) {
         {!loading && !error && data.length > 0 && (
           <>
             <h2 className="text-3xl font-bold text-center mb-8">
-              Nutrition Information
+              {activeView === "favorites"
+                ? "Favorite Products"
+                : "Nutrition Information"}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-slate-800 p-6 rounded-xl shadow-lg hover:shadow-emerald-900/40 hover:scale-[1.01] transition-all"
-                >
-                  <h3 className="text-lg font-semibold mb-4 text-emerald-400 line-clamp-2">
-                    {product.product_name ?? "Unknown Product"}
-                  </h3>
 
-                  {product.nutriments ? (
-                    <NutritionGrid nutriments={product.nutriments} />
-                  ) : (
-                    <p className="text-slate-500 text-sm">
-                      Nutritional data unavailable.
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+            {productsToRender.length === 0 ? (
+              <p className="text-slate-300 text-center">{emptyMessage}</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {productsToRender.map((product) => (
+                  <FoodCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
